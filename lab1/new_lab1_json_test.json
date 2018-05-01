@@ -1,0 +1,33 @@
+{
+    "description": "DFA has a substring '101'",
+    "state_true": [
+        3
+    ],
+    "state_false": [
+        0,
+        1,
+        2
+    ],
+    "alphabet": [
+        0,
+        1
+    ],
+    "attitude": [
+        [
+            0,
+            1
+        ],
+        [
+            2,
+            1
+        ],
+        [
+            0,
+            3
+        ],
+        [
+            3,
+            3
+        ]
+    ]
+}
