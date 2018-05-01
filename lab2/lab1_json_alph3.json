@@ -1,0 +1,39 @@
+{
+    "description": "The set of strings over the alphabet {0,1,2} in which the sum of all symbols is divisible by 5",
+    "current_state": 0,
+    "state_true": [
+        0
+    ],
+    "alphabet": [
+        0,
+        1,
+        2
+    ],
+    "attitude": [
+        [
+            1,
+            2,
+            3
+        ],
+        [
+            2,
+            3,
+            4
+        ],
+        [
+            3,
+            4,
+            0
+        ],
+        [
+            4,
+            0,
+            1
+        ],
+        [
+            0,
+            1,
+            2
+        ]
+    ]
+}

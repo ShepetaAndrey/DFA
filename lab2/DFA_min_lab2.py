@@ -1,21 +1,19 @@
-from DFA.lab1.DFA_lab1 import *
-import os
-import random as rnd
+from lab1.DFA_lab1 import *
 
-path = os.getcwd()
 # "lab1_json_test.json", "lab1_json_test2.json", "lab1_json_alph3.json"
 
-#TODO №1  Create Class for DFA minimization DONE
-#TODO №2  Create method for reading json file DONE
-#TODO №3  Create method for parsing json file DONE
-#TODO №4  Create 2-dimention matrix for parsing DFA: DONE .... .... ....
-    #TODO Обозначить "Х" элементы (F, NOT F) в объединении (NOT F and F):  (f, ^f) and (^f, f)
-    #TODO
+# TODO №1  Create Class for DFA minimization DONE
+# TODO №2  Create method for reading json file DONE
+# TODO №3  Create method for parsing json file DONE
+# TODO №4  Create 2-dimention matrix for parsing DFA: DONE .... .... ....
+    # TODO Обозначить "Х" элементы (F, NOT F) в объединении (NOT F and F):  (f, ^f) and (^f, f) DONE
+    # TODO Делать проверку (работа с json файлом) переходов
 
 class DFAmin(DFA):
     def __init__(self, jsonfile):
         super(DFAmin, self).__init__(json_file=jsonfile)
         self._dfa_table = [[' ' for x in range(len(self.attitude))] for y in range(len(self.attitude))]
+        self._delimiters = ['*', 'x', 'v', '_']
 
     def play(self):
         self._fill_table()
@@ -23,53 +21,61 @@ class DFAmin(DFA):
 
     """Minimizates DFA"""
     def _create_table(self):
-        delimiters = ['*', 'x', 'v', '_']
+        """creates an auxiliary table for further processes"""
         for x, xVal in enumerate(self._dfa_table):
             for y, yVal in enumerate(xVal):
                 if x > y:
-                    self._dfa_table[x][y] = delimiters[0]
-                    # print(self._dfa_table[x][y], end=" ")
+                    self._dfa_table[x][y] = self._delimiters[0]
                 elif x == y:
-                    self._dfa_table[x][y] = delimiters[2]
-                    # print(self._dfa_table[x][y], end=" ")
+                    self._dfa_table[x][y] = self._delimiters[2]
                 else:
-                    self._dfa_table[x][y] = delimiters[3]
-                    # print(self._dfa_table[x][y], end=" ")
-            # print()
+                    self._dfa_table[x][y] = self._delimiters[3]
         return self._dfa_table
 
     def _fill_table(self):
+        """fills created table with default values from algorithm"""
+        assert len(self._dfa_table) != 0
+        assert isinstance(self._dfa_table, list)
         checked_delims = ['x', 'v', 'Ⓧ', 'Ⓥ']
         self._dfa_table = self._create_table()
         for y, y_value in enumerate(self._dfa_table):
             for x, x_value in enumerate(y_value):
-                if y in self.state_true and\
-                   x not in self.state_true:
+                if (x in self.state_true and y not in self.state_true) or\
+                   (y in self.state_true and x not in self.state_true):
                     if x > y:
                         self._dfa_table[y][x] = checked_delims[0]
+        self._show_matrix()
+        # for check if our table has some changes
+        while self._fill_gaps():
+            self._show_matrix()
+            self._fill_gaps()
         return self._dfa_table
 
+    def _fill_gaps(self):
+        """Fills gaps ('_') in _dfa_table with 'X' according to algorithm"""
+        check_for_changes = False
+        for y, y_value in enumerate(self._dfa_table):
+            for x, x_value in enumerate(y_value):
+                if x_value == self._delimiters[-1]:
+                    # Empty states (self._dfa_table[y][x] == '_')
+                    state_y = self.attitude[y] #row
+                    state_x = self.attitude[x] #column
+                    # Check if next state is 'X' for any length alphabet
+                    for num in range(len(self.alphabet)):
+                        # state_z[num] where num is index of the next state
+                        # it means that we check pair of the next states of current
+                        if self._dfa_table[state_y[num]][state_x[num]] == self._delimiters[1]:
+                            check_for_changes = True
+                            self._dfa_table[y][x] = "x"
+                            break
+        return check_for_changes
+
     def _show_matrix(self):
-        assert len(self._dfa_table) != 0
-        assert isinstance(self._dfa_table, list)
         print("-" * (len(self._dfa_table) * 2))
         for i in self._dfa_table:
             for j in i:
                 print(j, end=" ")
             print()
-
-def writeJSON(fileToWrite, string_to_dump):
-    with open(path + "\\" + fileToWrite, 'w') as file:
-        json.dump(string_to_dump, file, indent=4)
-
-def readJSON(filename):
-    with open(path + "\\" + filename, 'r') as f:
-        filejson = json.load(f)
-        return filejson
-
-
-
-
 
 """
 print(path)
@@ -85,7 +91,7 @@ show_matrix(dfaTable)
 #     fileJSON = readJSON(filename)
 #     testDFA1 = DFA(fileJSON)
 #     testDFA1.__repr__()
-#     print(testDFA1.predicate())
+#     print(testDFA1.predicate())`
 #     testDFA1.current_state = 0
 #     question = input("Rewrite a tape? (Press key 'Enter' to rewrite and 'NO' if you dont want):")
 #     if question == "NO":
